@@ -98,11 +98,16 @@ if process.argv[2] is "--file"
   stream.on 'end', -> nextCommand = disconnect
 
 else if process.argv[2] is "--url"
-  http = require('http')
-  request = http.request process.argv[3], (response) ->
-    s = ""
-    response.on 'data', (chunk) -> s += chunk
-    response.on 'end', -> console.log s
+  request = require('http').request process.argv[3], (response) ->
+    stream = new require('stream').Readable()
+    stream._read = -> #do nothing
+    stream.setEncoding 'hex'
+    stream.on 'end', -> nextCommand = disconnect
+
+    response.on 'data', (chunk) -> stream.push chunk
+    response.on 'end', -> stream.push null
+
+    startScanning()
   request.end()
 
 else
