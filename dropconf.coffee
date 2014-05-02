@@ -80,13 +80,30 @@ disconnect = ->
     console.log "You can now close the window"
     process.exit()
 
-
-# Let's start!
-if process.argv.length isnt 3
-  console.log "Usage: coffee dropconf.coffee FILENAME"
+wrongParameters = ->
+  console.log "Usage:"
+  console.log "coffee dropconf.coffee --file FILENAME : load from a file"
+  console.log "coffee dropconf.coffee --url URL : load from an URL"
   process.exit()
 
-stream = require('fs').createReadStream(process.argv[2])
-stream.setEncoding 'hex'
-stream.on 'readable', startScanning
-stream.on 'end', -> nextCommand = disconnect
+
+# Let's start!
+if process.argv.length isnt 4
+  wrongParameters()
+
+if process.argv[2] is "--file"
+  stream = require('fs').createReadStream(process.argv[3])
+  stream.setEncoding 'hex'
+  stream.on 'readable', startScanning
+  stream.on 'end', -> nextCommand = disconnect
+
+else if process.argv[2] is "--url"
+  http = require('http')
+  request = http.request process.argv[3], (response) ->
+    s = ""
+    response.on 'data', (chunk) -> s += chunk
+    response.on 'end', -> console.log s
+  request.end()
+
+else
+  wrongParameters()
