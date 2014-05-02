@@ -76,7 +76,9 @@ nextCommand = ->
 
 disconnect = -> 
   console.log "Disconnecting from #{device.advertisement.localName}"
-  device.disconnect -> process.exit()
+  device.disconnect -> 
+    console.log "You can now close the window"
+    process.exit()
 
 
 # Let's start!
