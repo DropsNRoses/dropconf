@@ -24,8 +24,8 @@ readNextCommand = ->
     break if c is 10
     line.push c
   value = []
-  value.push parseInt(String.fromCharCode(line[i])+String.fromCharCode(line[i+1]), 16)  for i in [2...line.length] by 2
-  {char: String.fromCharCode(line[0]), value: value}
+  value.push parseInt(String.fromCharCode(line[i])+String.fromCharCode(line[i+1]), 16)  for i in [4...line.length] by 2
+  {char: String.fromCharCode(line[0]), value: value, notify: (String.fromCharCode(line[2]) is '1')}
 
 
 # States
@@ -72,7 +72,7 @@ activateNotifications = (i=0, error=null) ->
 nextCommand = ->
   command = readNextCommand()
   console.log "Write in #{chars[command.char].uuid}: #{command.value.map((v)->(v+0x100).toString(16)[1..]).join('')}"
-  chars[command.char].value.write new Buffer(command.value), true
+  chars[command.char].value.write new Buffer(command.value), true, (nextCommand unless command.notify)
 
 disconnect = -> 
   console.log "Disconnecting from #{device.advertisement.localName}"
